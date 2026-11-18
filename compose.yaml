@@ -8,7 +8,6 @@ services:
     volumes:
       - ./src:/workspace/src
       - ./public:/workspace/public
-      - /workspace/node_modules
     environment:
       DATABASE_URL: ${DATABASE_URL}
       WATCHPACK_POLLING: "true"
