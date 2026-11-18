@@ -2,17 +2,37 @@ services:
   app:
     build:
       context: .
-      dockerfile: DockerFile.dev
+      dockerfile: Dockerfile.dev
     ports:
       - "3000:3000"
+    volumes:
+      - ./src:/workspace/src
+      - ./public:/workspace/public
+      - /workspace/node_modules
+    environment:
+      DATABASE_URL: ${DATABASE_URL}
+      WATCHPACK_POLLING: "true"
+    depends_on:
+      db:
+        condition: service_healthy
 
   db:
     image: postgres:15
     environment:
-      POSTGRES_USER: env.POSTGRES_USER
-      POSTGRES_PASSWORD: env.POSTGRES_PASSWORD
-      POSTGRES_DB: env.POSTGRES_DB
+      POSTGRES_USER: ${POSTGRES_USER}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
+      POSTGRES_DB: ${POSTGRES_DB}
     ports:
-      - "5432:5432"
+      - "${POSTGRES_PORT}:5432"
+    volumes:
+    - pgdata:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", 'pg_isready -h 127.0.0.1 -U "$${POSTGRES_USER}" -d "$${POSTGRES_DB}"']
+      interval: 5s
+      timeout: 3s
+      retries: 10
+
+volumes:
+  pgdata:
 
 # TODO: かけ
