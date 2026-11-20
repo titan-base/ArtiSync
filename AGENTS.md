@@ -11,8 +11,10 @@ This block is written and re-added by `next dev` — verify at `node_modules/nex
 ## ディレクトリ構成
 
 - `src/app/` — Next.js の App Router。API は `src/app/api/[[...route]]/route.ts` で Hono に全て委譲する（ここにロジックを書かない）
-- `src/server/` — バックエンド（レイヤードアーキテクチャ）。機能ごとに `<layer>/<feature>/` に置く
+- `src/server/` — バックエンド（レイヤードアーキテクチャ）。機能ごとに `<layer>/<feature>/` に置く（presentation のみ例外）。`<feature>` は単数形（例: `user`）
   - `presentation/` — Hono のルーティング、リクエストの検証（zod）、レスポンスの整形
+    - `app.ts` — Hono アプリ本体（`basePath("/api")`）。各機能のルートをここでマウントする
+    - `routes/<feature>.ts` — 機能ごとのルート定義。他の層と違い、機能ごとのディレクトリは切らない
   - `application/` — ユースケース
   - `domain/` — エンティティとビジネスルール。他の層や外部ライブラリに依存しない
   - `infrastructure/` — DB アクセスなど、domain が定義したインターフェースの実装
