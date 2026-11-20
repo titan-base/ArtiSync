@@ -20,3 +20,9 @@ This block is written and re-added by `next dev` — verify at `node_modules/nex
 
 依存の向き: presentation → application → domain ← infrastructure
 
+## コミット
+
+- 作業をひとつのコミットにまとめない。意味のある単位（パッケージ追加、スキーマ変更、機能追加など）ごとに分けてコミットする
+- 履歴を読めば何をやったかが追えるようにする
+- メッセージは日本語。1行目に何をしたかを書き、必要なら空行のあとに理由や補足を書く
+
