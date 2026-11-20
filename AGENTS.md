@@ -7,3 +7,24 @@ This version has breaking changes — APIs, conventions, and file structure may 
 This block is written and re-added by `next dev` — verify at `node_modules/next/dist/server/lib/generate-agent-files.js`. Removing it from a diff only re-creates the uncommitted change; committing it with your work keeps the tree clean.
 
 <!-- END:nextjs-agent-rules -->
+
+## ディレクトリ構成
+
+- `src/app/` — Next.js の App Router。API は `src/app/api/[[...route]]/route.ts` で Hono に全て委譲する（ここにロジックを書かない）
+- `src/server/` — バックエンド（レイヤードアーキテクチャ）。機能ごとに `<layer>/<feature>/` に置く（presentation のみ例外）。`<feature>` は複数形（例: `users`）
+  - `presentation/` — Hono のルーティング、リクエストの検証（zod）、レスポンスの整形
+    - `app.ts` — Hono アプリ本体（`basePath("/api")`）。各機能のルートをここでマウントする
+    - `routes/<feature>.ts` — 機能ごとのルート定義。他の層と違い、機能ごとのディレクトリは切らない
+  - `application/` — ユースケース
+  - `domain/` — エンティティとビジネスルール。他の層や外部ライブラリに依存しない
+  - `infrastructure/` — DB アクセスなど、domain が定義したインターフェースの実装
+- `src/db/` — Drizzle の schema と DB クライアント（server-only）。import してよいのは `infrastructure/` からのみ
+
+依存の向き: presentation → application → domain ← infrastructure
+
+## コミット
+
+- 作業をひとつのコミットにまとめない。意味のある単位（パッケージ追加、スキーマ変更、機能追加など）ごとに分けてコミットする
+- 履歴を読めば何をやったかが追えるようにする
+- メッセージは日本語。1行目に何をしたかを書き、必要なら空行のあとに理由や補足を書く
+
