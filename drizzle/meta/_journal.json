@@ -15,6 +15,13 @@
       "when": 1795057489021,
       "tag": "0001_nappy_hydra",
       "breakpoints": true
+    },
+    {
+      "idx": 2,
+      "version": "7",
+      "when": 1795357590676,
+      "tag": "0002_add_better_auth",
+      "breakpoints": true
     }
   ]
 }
