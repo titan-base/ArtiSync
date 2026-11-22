@@ -1,5 +1,6 @@
-import { app } from "@/server/presentation/app";
+import { app } from "@/server/bootstrap";
 
+// Next.js が受け取った API リクエストを Hono に渡す。
 const handler = (req: Request) => app.fetch(req);
 
 export const GET = handler;
