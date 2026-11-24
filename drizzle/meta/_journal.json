@@ -22,6 +22,13 @@
       "when": 1795357590676,
       "tag": "0002_add_better_auth",
       "breakpoints": true
+    },
+    {
+      "idx": 3,
+      "version": "7",
+      "when": 1795489134339,
+      "tag": "0003_widen_passkey_counter",
+      "breakpoints": true
     }
   ]
 }

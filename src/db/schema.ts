@@ -1,4 +1,4 @@
-import { boolean, index, integer, pgTable, serial, text, timestamp, uniqueIndex } from "drizzle-orm/pg-core";
+import { bigint, boolean, index, pgTable, serial, text, timestamp, uniqueIndex } from "drizzle-orm/pg-core";
 
 // テスト用ユーザーテーブル。
 export const users = pgTable("users", {
@@ -68,7 +68,8 @@ export const passkey = pgTable("passkey", {
   publicKey: text("public_key").notNull(),
   userId: text("user_id").notNull().references(() => user.id, { onDelete: "cascade" }),
   credentialID: text("credential_id").notNull().unique(),
-  counter: integer().notNull(),
+  // WebAuthn の符号なし 32 ビット値を number のまま保存する。
+  counter: bigint({ mode: "number" }).notNull(),
   deviceType: text("device_type").notNull(),
   backedUp: boolean("backed_up").notNull(),
   transports: text(),
