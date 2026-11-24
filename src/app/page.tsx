@@ -3,6 +3,7 @@ import { headers } from "next/headers";
 import { redirect } from "next/navigation";
 import { Suspense } from "react";
 import { getLoginState } from "@/server/bootstrap";
+import { SessionRefresh } from "./session-refresh";
 
 export default function Home() {
   return (
@@ -18,6 +19,7 @@ async function AuthenticatedHome() {
 
   return (
     <div className="flex flex-col flex-1 items-center justify-center bg-zinc-50 font-sans dark:bg-black">
+      <SessionRefresh />
       <main className="flex flex-1 w-full max-w-3xl flex-col items-center justify-between py-32 px-16 bg-white dark:bg-black sm:items-start">
         <Image
           className="dark:invert h-5 w-[100px]"

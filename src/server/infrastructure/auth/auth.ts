@@ -16,10 +16,16 @@ export const enabledProviders = { google: Boolean(google), github: Boolean(githu
 // Drizzle にセッション、OAuth アカウント、パスキーを保存する。
 export const auth = betterAuth({
   database: drizzleAdapter(db, { provider: "pg" }),
+  // 描画時の GET は読み取りにし、更新は Cookie を受け取れるクライアントに任せる。
+  session: { deferSessionRefresh: true },
   emailAndPassword: { enabled: false },
   socialProviders: {
     ...(google ? { google } : {}),
     ...(github ? { github } : {}),
   },
-  plugins: [passkey({ rpName: "ArtiSync" })],
+  // ユーザー名を入力せずに見つけられるパスキーを登録する。
+  plugins: [passkey({
+    rpName: "ArtiSync",
+    authenticatorSelection: { residentKey: "required" },
+  })],
 });
