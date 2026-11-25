@@ -6,7 +6,7 @@ import { passkey } from "@better-auth/passkey";
 import { db } from "@/db";
 
 function oauthCredentials(clientId?: string, clientSecret?: string) {
-  return clientId && clientSecret ? { clientId, clientSecret } : undefined;
+  return clientId && clientSecret ? { clientId, clientSecret, disableImplicitSignUp: true } : undefined;
 }
 
 // 認証情報が揃っているプロバイダーだけ有効にする。

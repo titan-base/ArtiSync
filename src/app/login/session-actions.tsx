@@ -10,11 +10,13 @@ const socialProviders = [
 
 type Provider = typeof socialProviders[number]["id"];
 
-// Google・GitHub・パスキーのログイン操作と失敗時の表示。
-export function LoginForm({ providers, oauthFailed }: {
+// ログインと新規登録で OAuth ボタンを共有する。
+export function AuthForm({ providers, oauthFailed, mode }: {
   providers: Record<Provider, boolean>;
   oauthFailed: boolean;
+  mode: "login" | "register";
 }) {
+  const isRegistration = mode === "register";
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState(oauthFailed ? "認証を完了できませんでした。もう一度お試しください。" : "");
 
@@ -32,13 +34,16 @@ export function LoginForm({ providers, oauthFailed }: {
       const result = await authClient.signIn.social({
         provider: method,
         callbackURL: "/login",
-        errorCallbackURL: "/login",
+        errorCallbackURL: isRegistration ? "/register" : "/login",
+        requestSignUp: isRegistration,
       });
       if (result.error || !result.data) throw new Error("OAuth sign-in failed");
     } catch {
       setError(method === "passkey"
         ? "パスキーでログインできませんでした。登録済みのパスキーを選ぶか、Google・GitHubでお試しください。"
-        : "ログインを開始できませんでした。もう一度お試しください。");
+                : isRegistration
+          ? "新規登録を開始できませんでした。もう一度お試しください。"
+          : "ログインを開始できませんでした。もう一度お試しください。");
       setBusy(false);
     }
   }
@@ -50,9 +55,11 @@ export function LoginForm({ providers, oauthFailed }: {
           {name}で続ける{providers[id] ? "" : "（未設定）"}
         </button>
       ))}
-      <button type="button" className="secondary" disabled={busy} onClick={() => void signIn("passkey")}>
-        パスキーでログイン
-      </button>
+      {!isRegistration && (
+        <button type="button" className="secondary" disabled={busy} onClick={() => void signIn("passkey")}>
+          パスキーでログイン
+        </button>
+      )}
       {error && <p className="error" role="alert">{error}</p>}
     </div>
   );

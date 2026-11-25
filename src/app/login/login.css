@@ -24,6 +24,7 @@
 .login-screen p { margin: 0; }
 .login-screen .hint { color: #526077; font-size: .875rem; line-height: 1.6; overflow-wrap: anywhere; }
 .login-screen .card > .hint { margin-block: 16px; }
+.login-screen .hint a { color: #243e69; text-decoration: underline; }
 .login-screen .actions { display: grid; gap: 10px; }
 .login-screen .error { color: #a2172c; font-size: .875rem; line-height: 1.6; }
 

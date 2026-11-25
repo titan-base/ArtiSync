@@ -1,7 +1,8 @@
 import { headers } from "next/headers";
+import Link from "next/link";
 import { redirect } from "next/navigation";
 import { enabledProviders, getLoginState } from "@/server/bootstrap";
-import { LoginForm } from "./session-actions";
+import { AuthForm } from "./session-actions";
 import { PasskeyRegistration } from "./passkey-registration";
 
 // セッションとパスキーの登録状況を確認してから画面を表示する。
@@ -27,8 +28,8 @@ export default async function LoginPage({ searchParams }: {
   return (
     <main className="card" aria-labelledby="login-title">
       <h1 id="login-title">ログイン</h1>
-      <LoginForm providers={enabledProviders} oauthFailed={Boolean(query.error)} />
-      <p className="hint">初めての方は Google または GitHub で認証してから、パスキーを登録してください。</p>
+      <AuthForm mode="login" providers={enabledProviders} oauthFailed={Boolean(query.error)} />
+      <p className="hint">初めての方は <Link href="/register">新規登録</Link></p>
     </main>
   );
 }
