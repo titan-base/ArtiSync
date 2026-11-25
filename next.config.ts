@@ -5,6 +5,7 @@ const enableDockerPolling =
   process.env.NODE_ENV === "development";
 
 const nextConfig: NextConfig = {
+  output: "standalone",
   watchOptions: enableDockerPolling
     ? { pollIntervalMs: 1000 }
     : undefined,
