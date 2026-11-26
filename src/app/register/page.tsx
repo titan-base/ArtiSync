@@ -2,7 +2,7 @@ import { headers } from "next/headers";
 import Link from "next/link";
 import { redirect } from "next/navigation";
 import { enabledProviders, getLoginState } from "@/server/bootstrap";
-import { AuthForm } from "../login/session-actions";
+import { AuthForm } from "@/features/auth/components/auth-form";
 import "../login/login.css";
 
 export const instant = false;

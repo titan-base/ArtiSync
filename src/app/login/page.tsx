@@ -2,8 +2,8 @@ import { headers } from "next/headers";
 import Link from "next/link";
 import { redirect } from "next/navigation";
 import { enabledProviders, getLoginState } from "@/server/bootstrap";
-import { AuthForm } from "./session-actions";
-import { PasskeyRegistration } from "./passkey-registration";
+import { AuthForm } from "@/features/auth/components/auth-form";
+import { PasskeyRegistration } from "@/features/auth/components/passkey-registration";
 
 // セッションとパスキーの登録状況を確認してから画面を表示する。
 export const instant = false;
