@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import { authClient } from "./auth-client";
+import { authClient } from "@/lib/auth-client";
 
 // ログイン中のユーザーのアカウントにパスキーを追加する。
 export function PasskeyRegistration() {

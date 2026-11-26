@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import { authClient } from "./login/auth-client";
+import { authClient } from "@/lib/auth-client";
 
 // ホーム画面でセッションを更新し、ログアウト操作を受け付ける。
 export function HomeSessionActions() {
