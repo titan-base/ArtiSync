@@ -2,9 +2,12 @@ name: artisync-prod
 
 services:
   app:
+    # 本番用 Dockerfile でアプリをイメージに含めるので、ソースのマウントは不要。
     build: .
+    # ホスト自身の 127.0.0.1:3000 に届いた通信を、コンテナの 3000 番に転送する。
     ports:
       - "127.0.0.1:3000:3000"
+    # コンテナ内からトップページを取得し、リダイレクトをたどらず HTTP 200 を確認する。
     healthcheck:
       test:
         - CMD
@@ -18,16 +21,20 @@ services:
       timeout: 3s
       retries: 3
       start_period: 10s
+    # プロセス終了時に自動再起動する。ヘルスチェックの失敗だけでは再起動しない。
     restart: unless-stopped
 
   db:
     image: postgres:15
+    # 初回の DB 初期化に使う値。未設定または空の項目があれば Compose がエラーを返す。
     environment:
       POSTGRES_USER: ${POSTGRES_USER:?POSTGRES_USER is required}
       POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:?POSTGRES_PASSWORD is required}
       POSTGRES_DB: ${POSTGRES_DB:?POSTGRES_DB is required}
+    # DB コンテナを作り直してもデータを保持できるよう、名前付きボリュームに保存する。
     volumes:
       - pgdata:/var/lib/postgresql/data
+    # PostgreSQL が接続を受け付けるか確認する。$$ で環境変数の展開をコンテナ側に任せる。
     healthcheck:
       test: ["CMD-SHELL", 'pg_isready -h 127.0.0.1 -U "$${POSTGRES_USER}" -d "$${POSTGRES_DB}"']
       interval: 5s
