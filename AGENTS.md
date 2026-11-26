@@ -10,7 +10,28 @@ This block is written and re-added by `next dev` — verify at `node_modules/nex
 
 ## ディレクトリ構成
 
-- `src/app/` — Next.js の App Router。API は `src/app/api/[[...route]]/route.ts` で Hono に全て委譲する（ここにロジックを書かない）
+### フロントエンド
+
+- `src/app/` — Next.js の App Router。ルーティング専用で、page/layout は薄く保つ。UI の部品やロジックは下の `features/` などに置く
+  - `(auth)/` — 未ログインで見る画面（ログイン、新規登録）。共通のレイアウトと CSS を `(auth)/layout.tsx` で共有する
+  - `(main)/` — ログインが必要な画面。ログインの確認は layout ではなく各 page（またはデータ取得の箇所）で行う（layout は画面を移動しても再実行されないため）
+  - `api/[[...route]]/route.ts` — API は Hono に全て委譲する（ここにロジックを書かない）
+  - ルートグループ `(group)` は URL に含まれない。新しい画面は上のどちらかに置く
+- `src/features/<feature>/` — 機能ごとの UI とクライアント側のロジック。`<feature>` は `src/server` の機能名と合わせる（例: `auth`, `users`）
+  - `components/` — その機能の React コンポーネント
+  - `hooks/` など — 必要になったら作る
+- `src/components/ui/` — 特定の機能に依存しない共通 UI（ボタン、ダイアログなど）
+- `src/lib/` — クライアント側で共通に使う設定やユーティリティ（例: `auth-client.ts`）
+
+依存の向き: app → features → components / lib
+
+- `features/` 同士はなるべく import し合わない。複数の機能で使うものは `components/ui/` か `lib/` に移す
+- `app/` 以外から `@/server` と `@/db` の実装を import しない。型だけなら `import type` で読み込んでよい（Hono RPC の `AppType` など）
+- `app/` の Server Component からは `@/server` の関数（例: `getLoginState`）を呼んでよい
+- 上のルールは ESLint（`eslint.config.mjs` の `no-restricted-imports`）で検査している
+
+### バックエンド
+
 - `src/server/` — バックエンド（レイヤードアーキテクチャ）。機能ごとに `<layer>/<feature>/` に置く（presentation のみ例外）。`<feature>` は複数形（例: `users`）
   - `presentation/` — Hono のルーティング、リクエストの検証（zod）、レスポンスの整形
     - `app.ts` — Hono アプリ本体（`basePath("/api")`）。各機能のルートをここでマウントする
