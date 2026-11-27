@@ -4,6 +4,13 @@ WORKDIR /app
 COPY package.json package-lock.json ./
 RUN npm ci
 
+# migrate: Drizzle Kit で未適用の SQL を実行し、終了コードを Compose に返す。
+FROM deps AS migrate
+COPY drizzle.prod.config.ts ./
+COPY drizzle/ ./drizzle/
+USER node
+CMD ["npm", "run", "db:migrate", "--", "--config=drizzle.prod.config.ts"]
+
 # builder: deps の /app とインストール済みパッケージを引き継ぎ、Next.js をビルドする。
 FROM deps AS builder
 COPY . .
