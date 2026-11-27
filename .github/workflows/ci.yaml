@@ -1,0 +1,62 @@
+name: CI
+
+# dev をマージ先とするプルリクエストの作成・再オープン・追加の push で実行する。
+on:
+  pull_request:
+    branches: [dev]
+
+# ソースの取得に使う GITHUB_TOKEN に、リポジトリの内容を読む権限を与える。
+permissions:
+  contents: read
+
+# lint と smoke はそれぞれ独立したジョブとして実行する。
+jobs:
+  # Node.js 24 で依存パッケージをインストールし、ESLint でコードを検査する。
+  lint:
+    name: Lint
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v6
+      - uses: actions/setup-node@v6
+        with:
+          node-version: '24'
+          # npm のダウンロードキャッシュを再利用してインストールを速くする。
+          cache: npm
+      # package-lock.json に従って依存パッケージをインストールする。
+      - run: npm ci
+      - run: npm run lint
+
+  # 本番用の Compose 構成で、アプリが起動して応答できることを確認する。
+  smoke:
+    name: Production build and smoke test
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    env:
+      # 使用する Compose ファイルと、コンテナなどの名前の基準になるプロジェクト名。
+      COMPOSE_FILE: compose.prod.yaml
+      COMPOSE_PROJECT_NAME: artisync-ci
+      # CI 内で起動する PostgreSQL の初期化用の値。接続先の db は Compose のサービス名。
+      POSTGRES_USER: ci
+      POSTGRES_PASSWORD: ci-only
+      POSTGRES_DB: artisync_ci
+      DATABASE_URL: postgres://ci:ci-only@db:5432/artisync_ci
+      # Better Auth を起動するための CI 用の URL とテスト用のシークレット。
+      BETTER_AUTH_URL: http://127.0.0.1:3000
+      BETTER_AUTH_SECRET: ci-only-test-value-for-artisync-0123456789
+    steps:
+      - uses: actions/checkout@v6
+      # Next.js アプリの本番ビルドを含む app と、DB マイグレーション用の migrate をビルドする。
+      - name: Build production images
+        run: docker compose build app migrate
+      # db の準備、migrate の成功、app の起動の順に進み、app のヘルスチェックを最大 180 秒待つ。
+      - name: Start PostgreSQL, run migrations and wait for the app
+        run: docker compose up --no-build --wait --wait-timeout 180 app
+      # ランナーから /api/health にアクセスし、curl で HTTP エラーを検出し、jq で JSON の status を検証する。
+      # Bash の pipefail により、curl と jq のどちらで失敗してもステップが失敗する。
+      - name: Verify health response
+        run: curl --fail --silent --show-error http://127.0.0.1:3000/api/health | jq -e '.status == "ok"'
+        shell: bash
+      # 失敗時は原因を調べられるよう、各サービスのログを末尾から最大 100 行表示する。
+      - name: Show logs on failure
+        if: failure()
+        run: docker compose logs --no-color --tail=100
