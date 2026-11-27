@@ -4,6 +4,15 @@ services:
   app:
     # 本番用 Dockerfile でアプリをイメージに含めるので、ソースのマウントは不要。
     build: .
+    environment:
+      DATABASE_URL: ${DATABASE_URL:?DATABASE_URL is required}
+      BETTER_AUTH_URL: ${BETTER_AUTH_URL:?BETTER_AUTH_URL is required}
+      BETTER_AUTH_SECRET: ${BETTER_AUTH_SECRET:?BETTER_AUTH_SECRET is required}
+      # 利用する OAuth プロバイダーの ID とシークレットを設定する。
+      GOOGLE_CLIENT_ID: ${GOOGLE_CLIENT_ID:-}
+      GOOGLE_CLIENT_SECRET: ${GOOGLE_CLIENT_SECRET:-}
+      GITHUB_CLIENT_ID: ${GITHUB_CLIENT_ID:-}
+      GITHUB_CLIENT_SECRET: ${GITHUB_CLIENT_SECRET:-}
     # ホスト自身の 127.0.0.1:3000 に届いた通信を、コンテナの 3000 番に転送する。
     ports:
       - "127.0.0.1:3000:3000"
