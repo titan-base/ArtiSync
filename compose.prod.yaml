@@ -4,14 +4,15 @@ services:
   app:
     # 本番用 Dockerfile でアプリをイメージに含めるので、ソースのマウントは不要。
     build: .
+    # アプリの起動前に migrate サービスが完了するまで待つ。migrate が失敗した場合は app の起動も止まる。
     depends_on:
       migrate:
         condition: service_completed_successfully
+    # アプリの起動に必要な環境変数を設定する。未設定または空の項目があれば Compose がエラーを返す。
     environment:
       DATABASE_URL: ${DATABASE_URL:?DATABASE_URL is required}
       BETTER_AUTH_URL: ${BETTER_AUTH_URL:?BETTER_AUTH_URL is required}
       BETTER_AUTH_SECRET: ${BETTER_AUTH_SECRET:?BETTER_AUTH_SECRET is required}
-      # 利用する OAuth プロバイダーの ID とシークレットを設定する。
       GOOGLE_CLIENT_ID: ${GOOGLE_CLIENT_ID:-}
       GOOGLE_CLIENT_SECRET: ${GOOGLE_CLIENT_SECRET:-}
       GITHUB_CLIENT_ID: ${GITHUB_CLIENT_ID:-}
