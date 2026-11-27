@@ -16,7 +16,7 @@ services:
     # ホスト自身の 127.0.0.1:3000 に届いた通信を、コンテナの 3000 番に転送する。
     ports:
       - "127.0.0.1:3000:3000"
-    # コンテナ内からトップページを取得し、リダイレクトをたどらず HTTP 200 を確認する。
+    # ログイン状態に依存しない /api/health が HTTP 200 を返すことを確認する。
     healthcheck:
       test:
         - CMD
@@ -24,7 +24,7 @@ services:
         - --input-type=module
         - -e
         - |
-          const response = await fetch('http://127.0.0.1:3000/', { redirect: 'manual' });
+          const response = await fetch('http://127.0.0.1:3000/api/health', { redirect: 'manual' });
           process.exit(response.status === 200 ? 0 : 1);
       interval: 30s
       timeout: 3s
