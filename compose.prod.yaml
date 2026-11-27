@@ -4,6 +4,9 @@ services:
   app:
     # 本番用 Dockerfile でアプリをイメージに含めるので、ソースのマウントは不要。
     build: .
+    depends_on:
+      migrate:
+        condition: service_completed_successfully
     environment:
       DATABASE_URL: ${DATABASE_URL:?DATABASE_URL is required}
       BETTER_AUTH_URL: ${BETTER_AUTH_URL:?BETTER_AUTH_URL is required}
@@ -32,6 +35,17 @@ services:
       start_period: 10s
     # プロセス終了時に自動再起動する。ヘルスチェックの失敗だけでは再起動しない。
     restart: unless-stopped
+
+  # PostgreSQL が接続を受け付けてから SQL を適用する。失敗時はアプリの起動を止める。
+  migrate:
+    build:
+      context: .
+      target: migrate
+    depends_on:
+      db:
+        condition: service_healthy
+    environment:
+      DATABASE_URL: ${DATABASE_URL:?DATABASE_URL is required}
 
   db:
     image: postgres:15
